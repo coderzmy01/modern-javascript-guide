@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>树形菜单</title>
+  </head>
+  <body>
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <style>
+          .tree {
+            list-style: none;
+          }
+          .tree li {
+            margin: 0;
+            padding: 0;
+          }
+          .closed {
+            display: none;
+          }
+          .tree span {
+            cursor: pointer;
+          }
+        </style>
+      </head>
+      <body>
+        <ul class="tree" id="tree">
+          <li>
+            Animals
+            <ul>
+              <li>
+                Mammals
+                <ul>
+                  <li>Cows</li>
+                  <li>Donkeys</li>
+                  <li>Dogs</li>
+                  <li>Tigers</li>
+                </ul>
+              </li>
+              <li>
+                Other
+                <ul>
+                  <li>Snakes</li>
+                  <li>Birds</li>
+                  <li>Lizards</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>
+            Fishes
+            <ul>
+              <li>
+                Aquarium
+                <ul>
+                  <li>Guppy</li>
+                  <li>Angelfish</li>
+                </ul>
+              </li>
+              <li>
+                Sea
+                <ul>
+                  <li>Sea trout</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <script>
+          // 给标题包装一层span
+          const LI = document.querySelectorAll('.tree li');
+          LI.forEach((li) => {
+            const span = document.createElement('span');
+            li.prepend(span);
+            span.append(span.nextSibling);
+          });
+
+          tree.addEventListener('click', (event) => {
+            if (event.target.tagName !== 'SPAN') {
+              return;
+            }
+            const ul = event.target.nextElementSibling;
+            if (ul) {
+              ul.classList.toggle('closed');
+            }
+          });
+        </script>
+      </body>
+    </html>
+  </body>
+</html>

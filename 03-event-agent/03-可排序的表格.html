@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>可排序的表格</title>
+    <style>
+      table {
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid black;
+        padding: 4px;
+      }
+      th {
+        cursor: pointer;
+      }
+      th:hover {
+        background: yellow;
+      }
+    </style>
+  </head>
+
+  <body>
+    <table id="grid">
+      <thead>
+        <tr>
+          <th data-type="number">Age</th>
+          <th data-type="string">Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>5</td>
+          <td>John</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Pete</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td>Ann</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td>Eugene</td>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>Ilya</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <script>
+      const table = document.getElementById('grid');
+      const sortTable = (type) => {
+        const rows = Array.from(table.rows).slice(1);
+        rows.sort((row1, row2) => {
+          if (type === 'number') {
+            const num1 = parseInt(row1.cells[0].textContent);
+            const num2 = parseInt(row2.cells[0].textContent);
+            return num1 - num2;
+          } else {
+            const name1 = row1.cells[1].textContent;
+            const name2 = row2.cells[1].textContent;
+            return name1.localeCompare(name2);
+          }
+        });
+        table.tBodies[0].append(...rows);
+      };
+      table.addEventListener('click', (event) => {
+        sortTable(event.target.dataset.type);
+      });
+    </script>
+  </body>
+</html>
