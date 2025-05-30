@@ -1,9 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
     <title>工具提示行为</title>
+    <style>
+      body {
+        height: 2000px;
+        /* make body scrollable, the tooltip should work after the scroll */
+      }
+
+      .tooltip {
+        /* some styles for the tooltip, you can use your own instead */
+        position: fixed;
+        padding: 10px 20px;
+        border: 1px solid #b3c9ce;
+        border-radius: 4px;
+        text-align: center;
+        font: italic 14px/1.3 arial, sans-serif;
+        color: #333;
+        background: #fff;
+        box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.3);
+      }
+      /* .tooltip::after {
+        content: '';
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 10px solid transparent;
+        border-top-color: #b3c9ce;
+      } */
+    </style>
   </head>
-  <body></body>
+
+  <body>
+    <p>LaLaLa LaLaLa LaLaLa LaLaLa LaLaLa LaLaLa LaLaLa LaLaLa LaLaLa</p>
+    <p>LaLaLa LaLaLa LaLaLa LaLaLa LaLaLa LaLaLa LaLaLa LaLaLa LaLaLa</p>
+
+    <button data-tooltip="the tooltip is longer than the element">
+      Short button
+    </button>
+    <button data-tooltip="HTML<br>tooltip">One more button</button>
+
+    <p>
+      Scroll the page to make buttons appear on the top, check if the tooltips
+      show up correctly.
+    </p>
+
+    <script>
+      // ...your code...
+      const createTooltip = (box) => {
+        const position = box.getBoundingClientRect();
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        tooltip.textContent = box.dataset.tooltip;
+        document.body.append(tooltip);
+        tooltip.style.left = position.left + position.width / 2 + 'px';
+        tooltip.style.top = position.bottom + 'px';
+      };
+      const removeTooltip = () => {
+        const tooltip = document.querySelector('.tooltip');
+        tooltip.remove();
+      };
+      document.addEventListener('mouseover', (event) => {
+        if (event.target.dataset.tooltip) {
+          createTooltip(event.target);
+        }
+      });
+      document.addEventListener('mouseout', (event) => {
+        if (event.target.dataset.tooltip) {
+          removeTooltip();
+        }
+      });
+    </script>
+  </body>
 </html>

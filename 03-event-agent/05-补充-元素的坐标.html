@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Message Under Element Demo</title>
+    <style>
+      body {
+        padding: 20px;
+        height: 1000px;
+        /* 注意：body 默认是 static 定位 */
+      }
+      #button {
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        /* 添加一些边距来更好地观察定位效果 */
+        margin: 100px;
+      }
+      #button:hover {
+        background-color: #45a049;
+      }
+      /* 添加一个定位的容器来对比 */
+      .positioned-container {
+        position: relative;
+        border: 2px solid blue;
+        padding: 20px;
+        margin: 50px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="positioned-container">
+      <button id="button">Click me!</button>
+    </div>
+
+    <script>
+      function getCoords(elem) {
+        let box = elem.getBoundingClientRect();
+        return {
+          top: box.top + window.pageYOffset,
+          left: box.left + window.pageXOffset,
+          bottom: box.bottom + window.pageYOffset,
+        };
+      }
+
+      function createMessageUnder(elem, html) {
+        let message = document.createElement('div');
+        message.style.cssText = 'position:absolute; color: red';
+
+        let coords = getCoords(elem);
+
+        message.style.left = coords.left + 'px';
+        message.style.top = coords.bottom + 'px';
+
+        message.innerHTML = html;
+
+        return message;
+      }
+
+      // 使用示例
+      const button = document.getElementById('button');
+      button.addEventListener('click', () => {
+        const message = createMessageUnder(
+          button,
+          'Hello! This is a message under the button'
+        );
+        document.body.appendChild(message);
+      });
+    </script>
+  </body>
+</html>
