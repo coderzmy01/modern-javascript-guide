@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      //   const getUsers = async (userArray) => {
+      //     const users = await Promise.all(
+      //       userArray.map(async (user) => {
+      //         const response = await fetch(`https://api.github.com/users/${user}`);
+      //         return response.json();
+      //       }),
+      //     );
+      //     // const userNameList =users.map(user)
+      //     console.log(users);
+      //     return users;
+      //   };
+      //   const data = getUsers(['iliakan', 'remy', 'no.such.users']);
+      //   const div = document.createElement('div');
+      //   data.then((users) => {
+      //     div.innerHTML = users.map((user) => user.message).join('<br>');
+      //   });
+      async function getUsers(names) {
+        let promises = names.map(async (name) => {
+          try {
+            let res = await fetch(`https://api.github.com/users/${name}`);
+            if (!res.ok) return null;
+            return  await res.json();
+          } catch (e) {
+            return null;
+          }
+        });
+        let users = await Promise.all(promises);
+        console.log(users);
+        return users;
+      }
+      getUsers(['iliakan', 'remy', 'no.such.users']);
+    </script>
+  </body>
+</html>

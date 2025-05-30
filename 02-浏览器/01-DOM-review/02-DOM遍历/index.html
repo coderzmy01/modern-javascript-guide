@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      table {
+        border-collapse: collapse;
+      }
+
+      td {
+        border: 1px solid black;
+        padding: 3px 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>css表格</h1>
+    <!-- <div>begin</div>
+    <ul>
+      <li>1</li>
+      <li>2</li>
+      <li>1</li>
+      <li>2</li>
+      <li>3</li>
+      <li>4</li>
+      <li>5</li>
+    </ul>
+    <div>end</div> -->
+    <!-- <table>
+      <tr>
+        <td>1</td>
+        <td>2</td>
+        <td>3</td>
+        <td>4</td>
+      </tr>
+    </table> -->
+    <div>Users:</div>
+    <ul>
+      <li>John</li>
+      <li>Pete</li>
+    </ul>
+    <table>
+      <tr>
+        <td>1:1</td>
+        <td>2:1</td>
+        <td>3:1</td>
+        <td>4:1</td>
+        <td>5:1</td>
+      </tr>
+      <tr>
+        <td>1:2</td>
+        <td>2:2</td>
+        <td>3:2</td>
+        <td>4:2</td>
+        <td>5:2</td>
+      </tr>
+      <tr>
+        <td>1:3</td>
+        <td>2:3</td>
+        <td>3:3</td>
+        <td>4:3</td>
+        <td>5:3</td>
+      </tr>
+      <tr>
+        <td>1:4</td>
+        <td>2:4</td>
+        <td>3:4</td>
+        <td>4:4</td>
+        <td>5:4</td>
+      </tr>
+      <tr>
+        <td>1:5</td>
+        <td>2:5</td>
+        <td>3:5</td>
+        <td>4:5</td>
+        <td>5:5</td>
+      </tr>
+    </table>
+    <script>
+      //   for (const key in document.body.childNodes) {
+      //     if (Object.prototype.hasOwnProperty.call(document.body.childNodes, key)) {
+      //       const element = document.body.childNodes[key];
+      //       console.log(element);
+      //       element.firstChild && console.log(element.firstChild.nodeValue);
+      //       element.lastChild && console.log(element.lastChild.nodeValue);
+      //     }
+      //   }
+      //   alert(document.body.parentNode === document.documentElement);
+      //   alert(document.head.nextSibling === document.body);
+      //   alert(document.body.previousElementSibling);
+      //   for (const element of document.body.children) {
+      //     alert(element.nodeName);
+      //   }
+      //   const table2 = document.querySelector('table');
+      //   for (const element of table2.rows) {
+      //     console.log(table2.rows);
+      //     for (const td of element.cells) {
+      //       console.log(td.innerHTML);
+      //     }
+      //   }
+      //   const table = document.createElement('table');
+      //   for (let i = 0; i < 3; i++) {
+      //     const tr = document.createElement('tr');
+      //     for (let j = 0; j < 3; j++) {
+      //       const td = document.createElement('td');
+      //       td.innerHTML = `${i} ${j}`;
+      //       tr.appendChild(td);
+      //     }
+      //     table.appendChild(tr);
+      //   }
+      //   document.body.appendChild(table);
+      //   获取div，给出多种获取方式
+      //   const div = document.querySelector('div');
+      //   const div2 = document.body.firstElementChild;
+      //   const div3 = document.body.children[0];
+      //   const div4 = document.body.childNodes[0];
+      //   const ul = div.nextElementSibling;
+      //   const li = ul.lastElementChild;
+      const t = document.body.lastElementChild.previousElementSibling;
+      for (const tr of t.rows) {
+        for (const td of tr.cells) {
+          if (td.cellIndex == tr.rowIndex) td.style.backgroundColor = 'red';
+        }
+      }
+    </script>
+  </body>
+</html>
