@@ -69,16 +69,89 @@
 // // your toString in action
 // alert(dictionary); // "apple,__proto__"
 
-function Rabbit(name) {
-  this.name = name;
+// function Rabbit(name) {
+//   this.name = name;
+// }
+// Rabbit.prototype.sayHi = function () {
+//   alert(this.name);
+// };
+
+// let rabbit = new Rabbit("Rabbit");
+
+// rabbit.sayHi();
+// Rabbit.prototype.sayHi();
+// Object.getPrototypeOf(rabbit).sayHi();
+// rabbit.__proto__.sayHi();
+
+class User {
+  constructor(params) {
+    this.name = params;
+  }
+  sayHi() {}
 }
-Rabbit.prototype.sayHi = function () {
-  alert(this.name);
-};
+// console.log(typeof User);
+// console.log(User === User.prototype.constructor);
+// console.log(User.prototype.sayHi);
+// console.log(Object.getOwnPropertyNames(User.prototype));
 
-let rabbit = new Rabbit("Rabbit");
+// function User2(params) {
+//   this.name = params;
+// }
+// User2.prototype.sayHi = function () {
+//   console.log(this.name);
+// };
+// let user = new User("name");
 
-rabbit.sayHi();
-Rabbit.prototype.sayHi();
-Object.getPrototypeOf(rabbit).sayHi();
-rabbit.__proto__.sayHi();
+/* 
+与普通函数区别：
+1. 内部属性：[[IsClassConstructor]]
+2. 
+
+*/
+// 1. 必须与new关键字一起用;
+// User();
+// 2. string 表现: class开头;
+// console.log(User);
+// 3. class 声明的属性都是不可枚举的
+// const u1 = new User("coderwhy");
+// const u2 = new User2("coderzmy");
+// for (const key in u1) {
+//   const element = u1[key];
+//   console.log(element);
+// }
+// for (const key in u2) {
+//   const element = u2[key];
+//   console.log(element);
+// }
+
+// 具名class
+// let user = class User2 {
+//   constructor(params) {
+//     console.log(User2);
+//   }
+// };
+// const u1 = new user();
+// 动态创建class
+// function makeClass() {
+//   return class {
+//     sayHi() {
+//       console.log("hello");
+//     }
+//   };
+// }
+// const user2 = makeClass();
+// new user2().sayHi();
+
+// class中的this绑定
+class Button {
+  constructor(name) {
+    this.name = name;
+  }
+  click() {
+    console.log(this.name + "clicked!");
+  }
+}
+const btn = new Button("btn10");
+setTimeout(() => {
+  btn.click();
+});
