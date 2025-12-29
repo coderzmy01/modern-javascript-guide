@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>珠峰培训-QQ音乐播放器</title>
+    <!--IMPORT CSS-->
+    <link rel="stylesheet" href="css/reset.min.css">
+    <!-- 
+        开发环境下：基于 less-2.5.3.min.js 对编写的less代码进行实时编译 
+        生产环境下：部署到服务器的时候，我们需要把less编译为css，而页面导入的是css
+    -->
+    <link rel="stylesheet/less" href="css/index.less">
+    <script src="js/less-2.5.3.min.js" async></script>
+
+    <!-- 给CSS3样式属性自动设置前缀，以此处理浏览器兼容 -->
+    <script src="js/prefixfree.min.js" async></script>
+
+    <!-- 动态计算REM的换算比例 -->
+    <script>
+        (function () {
+            const computed = function computed() {
+                let HTML = document.documentElement,
+                    deviceW = HTML.clientWidth,
+                    designW = 750,
+                    ratio = 0;
+                ratio = deviceW > designW ? 100 : deviceW / designW * 100;
+                HTML.style.fontSize = `${ratio}px`;
+            };
+            computed();
+            window.addEventListener('resize', computed);
+        })();
+    </script>
+</head>
+
+<body>
+    <div id="app">
+        <!-- 音乐标签 -->
+        <audio src="images/myDream.m4a" preload="none" style="display: none;" id="musicAudio"></audio>
+
+        <!-- 处理背景 -->
+        <div class="backImg"></div>
+        <div class="backMark"></div>
+
+        <!-- 头部 -->
+        <header class="headerBox">
+            <div class="info">
+                <h1 class="title">我的梦</h1>
+                <h2 class="author">张靓颖</h2>
+                <img src="images/myDream.jpg" alt="" class="logo">
+            </div>
+            <a href="javascript:;" class="musicBtn"></a>
+        </header>
+
+        <!-- 歌词 -->
+        <main class="mainBox">
+            <div class="wrapper">
+                <!-- <p class="active">我的梦 (华为手机主题曲) - 张靓颖</p>
+                <p>词：王海涛/张靓颖</p>
+                <p>曲：Andy Love</p> -->
+            </div>
+        </main>
+
+        <!-- 底部 -->
+        <footer class="footerBox">
+            <div class="progress">
+                <span class="current">00:00</span>
+                <div class="probg">
+                    <div class="already"></div>
+                </div>
+                <span class="duration">00:00</span>
+            </div>
+            <a href="javascript:;" class="downLoadBtn">下载这首音乐</a>
+        </footer>
+    </div>
+
+    <!--IMPORT JS-->
+    <script src="js/zepto.min.js" defer></script>
+    <script src="js/index.js" defer></script>
+</body>
+
+</html>

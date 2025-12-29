@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>闭包作用域</title>
+  <meta charset='utf-8'>
+  <link href='https://cdn.maxiang.io/res-min/themes/marxico.css' rel='stylesheet'>
+  <style>
+    .note-content {
+      font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", STHeiti, "Microsoft YaHei", "WenQuanYi Micro Hei", SimSun, Song, sans-serif;
+    }
+
+    #preview-contents {
+      margin-top: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id='preview-contents' class='note-content'>
+
+
+
+    <div>
+      <div class="toc">
+        <div class="toc">
+          <ul>
+            <li>
+              <ul>
+                <li>
+                  <ul>
+                    <li>
+                      <ul>
+                        <li><a href="#js中的堆heap栈stack内存">JS中的堆(Heap)栈(Stack)内存</a></li>
+                        <li><a href="#js代码执行的预处理机制变量提升">JS代码执行的预处理机制：变量提升</a></li>
+                        <li><a href="#块级私有上下文">块级私有上下文</a></li>
+                        <li><a href="#闭包作用域和浏览器垃圾回收机制">闭包作用域和浏览器垃圾回收机制</a></li>
+                        <li><a href="#专题总结let-const-var-的区别">专题总结：let / const / var 的区别</a></li>
+                        <li><a href="#this的几种基本情况说明">THIS的几种基本情况说明</a></li>
+                        <li><a href="#闭包应用之循环中的闭包处理方案">闭包应用之：循环中的闭包处理方案</a></li>
+                        <li><a href="#js高阶编程技巧单例设计模式">JS高阶编程技巧：单例设计模式</a></li>
+                        <li><a href="#js高阶编程技巧jq源码分析环境处理">JS高阶编程技巧：JQ源码分析「环境处理」</a></li>
+                        <li><a href="#js高阶编程技巧柯理化函数编程思想">JS高阶编程技巧：柯理化函数编程思想</a></li>
+                        <li><a href="#js高阶编程技巧惰性思想">JS高阶编程技巧：惰性思想</a></li>
+                        <li><a href="#js高阶编程技巧函数的防抖和节流">JS高阶编程技巧：函数的防抖和节流</a></li>
+                        <li><a href="#吊打面试官之谈谈对闭包的理解">吊打面试官之谈谈对闭包的理解</a></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+
+    <h4 id="js中的堆heap栈stack内存">JS中的堆(Heap)栈(Stack)内存</h4>
+
+    <blockquote>
+      <p>都是在计算机内存中开辟的空间</p>
+
+      <ul>
+        <li>
+          <p>栈内存 Stack：ECStack（Execution [ˌeksɪˈkjuːʃn] Context Stack）</p>
+
+          <ul>
+            <li>
+              <p>存储原始值类型值</p>
+            </li>
+            <li>
+              <p>代码执行的环境</p>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <p>堆内存 Heap：</p>
+
+          <ul>
+            <li>
+              <p>存储对象类型值</p>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr>
+
+      <p>EC（Execution [ˌeksɪˈkjuːʃn] Context ）执行上下文：区分代码执行的环境</p>
+
+      <ul>
+        <li>
+          <p>常见上下文分类：</p>
+
+          <ul>
+            <li>
+              <p>全局上下文 EC(G)</p>
+            </li>
+            <li>
+              <p>函数私有上下文 EC(?)</p>
+            </li>
+            <li>
+              <p>块级私有上下文 EC(BLOCK)</p>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <p>产生私有上下文 -&gt; 进栈执行 -&gt; 出栈释放(可能释放)</p>
+        </li>
+        <li>
+          <p>变量对象：当前上下文中，用来存储声明的变量的地方</p>
+
+          <ul>
+            <li>
+              <p>VO（Varibale Object）：VO(G) 或者 VO(BLOCK)</p>
+            </li>
+            <li>
+              <p>AO（Active Object）：AO(?) </p>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr>
+
+      <p>GO（Global Object）全局对象</p>
+
+      <ul>
+        <li>
+          <p>window 指向 GO 对象</p>
+        </li>
+        <li>
+          <p>全局上下文中，基于var/function声明的变量是直接存储到GO对象上的；而基于let/const声明的变量才是存放在VO(G)中的；</p>
+        </li>
+      </ul>
+
+      <hr>
+
+      <p><code>let 变量 = 值</code> 的操作步骤</p>
+
+      <ul>
+        <li>
+          <p>第一步：创建值</p>
+
+          <ul>
+            <li>
+              <p>原始值类型：直接存储在栈内存中，按值操作 </p>
+            </li>
+            <li>
+              <p>对象类型值：按照堆内存地址来操作</p>
+
+              <ul>
+                <li>
+                  <p>对象：开辟一个堆内存空间(16进制地址)、依次存储对象的键值对、把空间地址赋值给变量</p>
+                </li>
+                <li>
+                  <p>函数：内存空间中存储三部分信息</p>
+
+                  <ul>
+                    <li>
+                      <p>作用域 [[scope]]：当前所处上下文</p>
+                    </li>
+                    <li>
+                      <p>函数体中的代码字符串</p>
+                    </li>
+                    <li>
+                      <p>当做普通对象存储的静态属性和方法「name &amp; length」</p>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <p>第二步：声明变量 declare</p>
+        </li>
+        <li>
+          <p>第三步：变量和值关联在一起（赋值） defined</p>
+        </li>
+      </ul>
+    </blockquote>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-keyword">debugger</span>; <span class="hljs-comment">//设置断点调试，代码运行到这个断点处，就暂停了，接下来我们在控制台基于F10(逐过程)/F11(逐语句)控制代码一步步的执行，并且监测到每一步执行的结果</span>
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> x = <span class="hljs-number">12</span>;
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> y = <span class="hljs-number">13</span>;
+</div><div class="hljs-line">z = <span class="hljs-number">14</span>;
+</div></code></pre>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-keyword">var</span> a = {<span class="hljs-attr">n</span>: <span class="hljs-number">1</span>};
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> b = a;
+</div><div class="hljs-line">a.x = a = {<span class="hljs-attr">n</span>: <span class="hljs-number">2</span>};
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(a.x);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(b);
+</div></code></pre>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-keyword">let</span> x = [<span class="hljs-number">12</span>, <span class="hljs-number">23</span>];
+</div><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fn</span>(<span class="hljs-params">y</span>) </span>{
+</div><div class="hljs-line">    y[<span class="hljs-number">0</span>] = <span class="hljs-number">100</span>;
+</div><div class="hljs-line">    y = [<span class="hljs-number">100</span>];
+</div><div class="hljs-line">    y[<span class="hljs-number">1</span>] = <span class="hljs-number">200</span>;
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(y);
+</div><div class="hljs-line">}
+</div><div class="hljs-line">fn(x);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(x);
+</div></code></pre>
+
+
+
+    <h4 id="js代码执行的预处理机制变量提升">JS代码执行的预处理机制：变量提升</h4>
+
+    <blockquote>
+      <p>在“当前上下文”中，代码执行之前，浏览器首先会把所有带var/function关键字的进行提前声明或者定义：带var的只是提前声明 &amp; 带function的，此阶段声明+定义{赋值}都完成了</p>
+
+      <ul>
+        <li>
+          <p>let/const/import/class声明的变量不存在变量提升</p>
+        </li>
+        <li>
+          <p>重复声明的问题</p>
+        </li>
+        <li>
+          <p>推荐使用函数表达式，确保函数执行只能放在“创建函数”的下面，保证逻辑严谨性</p>
+        </li>
+        <li>
+          <p>条件判断：在当前上下文中，变量提升阶段，不论条件是否成立，都要进行变量提升</p>
+
+          <ul>
+            <li>
+              <p>var：还是只声明</p>
+            </li>
+            <li>
+              <p>function：判断体中的函数，在变量提升阶段，只声明不赋值「函数是个渣男」</p>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </blockquote>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-built_in">console</span>.log(a);
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> a = <span class="hljs-number">12</span>;
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(b);
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> b = <span class="hljs-number">12</span>;
+</div></code></pre>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-built_in">console</span>.log(fn);
+</div><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fn</span>(<span class="hljs-params"></span>)</span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-number">1</span>); }
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(fn);
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> fn = <span class="hljs-number">12</span>;
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(fn);
+</div><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fn</span>(<span class="hljs-params"></span>)</span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-number">2</span>); }
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(fn);
+</div></code></pre>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-built_in">console</span>.log(a);
+</div><div class="hljs-line"><span class="hljs-keyword">if</span> (!(<span class="hljs-string">'a'</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">window</span>)) {
+</div><div class="hljs-line">  <span class="hljs-keyword">var</span> a = <span class="hljs-number">13</span>;
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(a);
+</div></code></pre>
+
+
+
+    <h4 id="块级私有上下文">块级私有上下文</h4>
+
+    <blockquote>
+      <p>除“函数和对象”的大括号外「例如：判断体/循环体/代码块…」，如果在大括号中出现了 let/const/function/class
+        等关键词声明变量，则当前大括号会产生一个“块级私有上下文”；它的上级上下文是所处的环境；var不产生，也不受块级上下文的影响；</p>
+
+      <ul>
+        <li>
+          <p>函数是个渣男</p>
+        </li>
+        <li>
+          <p>循环中的块级上下文</p>
+        </li>
+      </ul>
+    </blockquote>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">//忽略报错的影响</span>
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(a);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(b);
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> a = <span class="hljs-number">12</span>;
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> b = <span class="hljs-number">13</span>;
+</div><div class="hljs-line"><span class="hljs-keyword">if</span> (<span class="hljs-number">1</span> == <span class="hljs-number">1</span>) {
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(a);
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(b);
+</div><div class="hljs-line">    <span class="hljs-keyword">var</span> a = <span class="hljs-number">100</span>;
+</div><div class="hljs-line">    <span class="hljs-keyword">let</span> b = <span class="hljs-number">200</span>;
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(a);
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(b);
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(a);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(b);
+</div></code></pre>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">//函数是个渣男</span>
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(foo);
+</div><div class="hljs-line"><span class="hljs-keyword">if</span>(<span class="hljs-number">1</span>===<span class="hljs-number">1</span>){
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(foo);
+</div><div class="hljs-line">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params"></span>) </span>{}
+</div><div class="hljs-line">    foo = <span class="hljs-number">1</span>;
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(foo);
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(foo);
+</div></code></pre>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line">f = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;};
+</div><div class="hljs-line">g = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;};
+</div><div class="hljs-line">(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (g() &amp;&amp; [] == ![]) {
+</div><div class="hljs-line">        f = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;}
+</div><div class="hljs-line">        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">g</span>(<span class="hljs-params"></span>) </span>{<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;}
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">})();
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(f());
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(g());
+</div></code></pre>
+
+
+
+    <h4 id="闭包作用域和浏览器垃圾回收机制">闭包作用域和浏览器垃圾回收机制</h4>
+
+    <blockquote>
+      <p>浏览器垃圾回收机制「GC」</p>
+
+      <ul>
+        <li>
+          <p>标记清楚</p>
+        </li>
+        <li>
+          <p>引用计数</p>
+        </li>
+      </ul>
+
+      <p>全局上下文：打开页面，执行全局代码就会形成；只有当页面关闭的时候才会释放； <br>
+        私有上下文：一般函数(代码块)中的代码执行完，浏览器会自动把私有上下文出栈释放；但是如果，当前上下文中，某个和它关联的内容（一般指的是一个堆内存）被当前上下文以外的事物占用了，那么这个私有上下文不能出栈释放；这样私有上下文中的“私有变量/值”也被保存起来了!
+        <strong><code>闭包的机制:保护、保存</code></strong>
+      </p>
+    </blockquote>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-keyword">let</span> x = <span class="hljs-number">5</span>;
+</div><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fn</span>(<span class="hljs-params">x</span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">y</span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-built_in">console</span>.log(y + (++x));
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> f = fn(<span class="hljs-number">6</span>);
+</div><div class="hljs-line">f(<span class="hljs-number">7</span>);
+</div><div class="hljs-line">fn(<span class="hljs-number">8</span>)(<span class="hljs-number">9</span>);
+</div><div class="hljs-line">f(<span class="hljs-number">10</span>);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(x);
+</div></code></pre>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-keyword">let</span> a=<span class="hljs-number">0</span>,
+</div><div class="hljs-line">    b=<span class="hljs-number">0</span>;
+</div><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">A</span>(<span class="hljs-params">a</span>)</span>{
+</div><div class="hljs-line">    A=<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">b</span>)</span>{
+</div><div class="hljs-line">        alert(a+b++);
+</div><div class="hljs-line">    };
+</div><div class="hljs-line">    alert(a++);
+</div><div class="hljs-line">}
+</div><div class="hljs-line">A(<span class="hljs-number">1</span>);
+</div><div class="hljs-line">A(<span class="hljs-number">2</span>);
+</div></code></pre>
+
+
+
+    <h4 id="专题总结let-const-var-的区别">专题总结：let / const / var 的区别</h4>
+
+    <blockquote>
+      <p>和GO的关系 <br>
+        变量提升 <br>
+        重复声明 <br>
+        块级作用域 <br>
+        暂时性死区 <br>
+        ……</p>
+    </blockquote>
+
+
+
+    <h4 id="this的几种基本情况说明">THIS的几种基本情况说明</h4>
+
+    <blockquote>
+      <p>事件绑定 <br>
+        函数执行</p>
+
+      <ul>
+        <li>
+          <p>匿名函数</p>
+        </li>
+        <li>
+          <p>成员访问</p>
+        </li>
+        <li>
+          <p>普通函数</p>
+        </li>
+        <li>
+          <p>回调函数</p>
+        </li>
+      </ul>
+    </blockquote>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-keyword">var</span> x = <span class="hljs-number">3</span>,
+</div><div class="hljs-line">    obj = {<span class="hljs-attr">x</span>: <span class="hljs-number">5</span>};
+</div><div class="hljs-line">obj.fn = (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">this</span>.x *= ++x;
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">y</span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-keyword">this</span>.x *= (++x)+y;
+</div><div class="hljs-line">        <span class="hljs-built_in">console</span>.log(x);
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">})();
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> fn = obj.fn;
+</div><div class="hljs-line">obj.fn(<span class="hljs-number">6</span>);
+</div><div class="hljs-line">fn(<span class="hljs-number">4</span>);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(obj.x, x);
+</div></code></pre>
+
+
+
+    <h4 id="闭包应用之循环中的闭包处理方案">闭包应用之：循环中的闭包处理方案</h4>
+
+    <blockquote>
+      <p>页面中有五个按钮，点击每个按钮输出对应的索引，请问下面方式是否可以实现？如果不可以，请问该如何解决？</p>
+
+      <ul>
+        <li>
+          <p>解决方案一：闭包解决方案，利用闭包的“保存”机制</p>
+        </li>
+        <li>
+          <p>解决方案二：自定义属性</p>
+        </li>
+        <li>
+          <p>解决方案三：终极方案-事件委托</p>
+        </li>
+      </ul>
+    </blockquote>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-keyword">var</span> btnList = <span class="hljs-built_in">document</span>.querySelectorAll(<span class="hljs-string">'.btn'</span>);
+</div><div class="hljs-line"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; btnList.length; i++) {
+</div><div class="hljs-line">    btnList[i].onclick = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`当前点击按钮的索引：<span class="hljs-subst">${i}</span>`</span>);
+</div><div class="hljs-line">    };
+</div><div class="hljs-line">}
+</div></code></pre>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">// 能否实现每间隔1秒输出 0 1 2?</span>
+</div><div class="hljs-line"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span>; i++) {
+</div><div class="hljs-line">    setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-built_in">console</span>.log(i);
+</div><div class="hljs-line">    }, i * <span class="hljs-number">1000</span>);
+</div><div class="hljs-line">}
+</div></code></pre>
+
+
+
+    <h4 id="js高阶编程技巧单例设计模式">JS高阶编程技巧：单例设计模式</h4>
+
+    <p><strong>模块化编程进化历史</strong></p>
+
+    <blockquote>
+      <p>前端开发需遵循模块化编程：公用性&amp;复用性、提高开发效率、方便管理、团队协作开发…</p>
+
+      <ul>
+        <li>
+          <p>单例设计模式</p>
+        </li>
+        <li>
+          <p>AMD「require.js」</p>
+        </li>
+        <li>
+          <p>CommonJS</p>
+        </li>
+        <li>
+          <p>CMD「sea.js」</p>
+        </li>
+        <li>
+          <p>ES6Module</p>
+        </li>
+      </ul>
+    </blockquote>
+
+    <p><code>单例设计模式</code></p>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-keyword">let</span> xxxModule = (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">let</span> time = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+</div><div class="hljs-line">    <span class="hljs-keyword">const</span> query = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">query</span>(<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-comment">// ...</span>
+</div><div class="hljs-line">    };
+</div><div class="hljs-line">    <span class="hljs-keyword">const</span> handle = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handle</span>(<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-comment">// ...</span>
+</div><div class="hljs-line">    };
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">    <span class="hljs-comment">// 把供其它板块调用的方法，暴露到全局对象上</span>
+</div><div class="hljs-line">    <span class="hljs-comment">//「局限：暴露的内容比较多，则还会引发全局变量冲突」</span>
+</div><div class="hljs-line">    <span class="hljs-comment">// window.query = query;</span>
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> {
+</div><div class="hljs-line">        query,
+</div><div class="hljs-line">        handle
+</div><div class="hljs-line">    };
+</div><div class="hljs-line">})();
+</div></code></pre>
+
+    <p><code>CommonJS模块化规范</code></p>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">/* ---A.js--- */</span>
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> sum = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sum</span>(<span class="hljs-params">...params</span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> params.reduce(<span class="hljs-function">(<span class="hljs-params">result, item</span>) =&gt;</span> {
+</div><div class="hljs-line">        <span class="hljs-keyword">return</span> result + item;
+</div><div class="hljs-line">    });
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><span class="hljs-comment">// 暴露一些API</span>
+</div><div class="hljs-line"><span class="hljs-built_in">module</span>.exports = {
+</div><div class="hljs-line">    sum
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-comment">/* ---B.js--- */</span>
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> name = <span class="hljs-string">'哈哈'</span>;
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> A = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./A'</span>);
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> average = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">average</span>(<span class="hljs-params">...params</span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> (A.sum(...params) / params.length).toFixed(<span class="hljs-number">2</span>);
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><span class="hljs-built_in">module</span>.exports = {
+</div><div class="hljs-line">    average
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-comment">/* ---main.js--- */</span>
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> A = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./A'</span>);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(A.sum(<span class="hljs-number">10</span>, <span class="hljs-number">20</span>, <span class="hljs-number">30</span>, <span class="hljs-number">40</span>));
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> B = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./B'</span>);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(B.average(<span class="hljs-number">10</span>, <span class="hljs-number">20</span>, <span class="hljs-number">30</span>, <span class="hljs-number">40</span>));
+</div></code></pre>
+
+    <p><code>ES6Module</code></p>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">/* ---index.html--- */</span>
+</div><div class="hljs-line">&lt;!-- 
+</div><div class="hljs-line">   type=<span class="hljs-string">"module"</span> 让浏览器支持ES6Module规范
+</div><div class="hljs-line">   必须是基于HTTP/HTTPS协议预览
+</div><div class="hljs-line">--&gt;
+</div><div class="hljs-line"><span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"main.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></span>
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-comment">/* ---main.js--- */</span>
+</div><div class="hljs-line"><span class="hljs-comment">/* 导入，必须写在模块的最开始 */</span>
+</div><div class="hljs-line"><span class="hljs-keyword">import</span> A <span class="hljs-keyword">from</span> <span class="hljs-string">'./A.js'</span>;
+</div><div class="hljs-line"><span class="hljs-keyword">import</span> average <span class="hljs-keyword">from</span> <span class="hljs-string">'./B.js'</span>;
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(A.sum(<span class="hljs-number">10</span>, <span class="hljs-number">20</span>, <span class="hljs-number">30</span>, <span class="hljs-number">40</span>));
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(average(<span class="hljs-number">10</span>, <span class="hljs-number">20</span>, <span class="hljs-number">30</span>, <span class="hljs-number">40</span>));
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-comment">/* ---A.js--- */</span>
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> sum = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sum</span>(<span class="hljs-params">...params</span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> params.reduce(<span class="hljs-function">(<span class="hljs-params">result, item</span>) =&gt;</span> {
+</div><div class="hljs-line">        <span class="hljs-keyword">return</span> result + item;
+</div><div class="hljs-line">    });
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-comment">// 分别导出多个</span>
+</div><div class="hljs-line"><span class="hljs-comment">// export const AA = 'xx';</span>
+</div><div class="hljs-line"><span class="hljs-comment">// export const BB = 'xx';</span>
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-comment">// 导出一个</span>
+</div><div class="hljs-line"><span class="hljs-comment">// export default sum;</span>
+</div><div class="hljs-line"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> {
+</div><div class="hljs-line">    sum
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-comment">/* ---B.js--- */</span>
+</div><div class="hljs-line"><span class="hljs-keyword">import</span> A <span class="hljs-keyword">from</span> <span class="hljs-string">'./A.js'</span>;
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> average = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">average</span>(<span class="hljs-params">...params</span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> (A.sum(...params) / params.length).toFixed(<span class="hljs-number">2</span>);
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> average;
+</div></code></pre>
+
+    <h4 id="js高阶编程技巧jq源码分析环境处理">JS高阶编程技巧：JQ源码分析「环境处理」</h4>
+
+    <blockquote>
+      <p>JS代码可以在哪运行</p>
+
+      <ul>
+        <li>
+          <p>浏览器端 webkit(blink)、gecko、trident…</p>
+        </li>
+        <li>
+          <p>webview「手机端APP中」 webkit <br>
+            <code>有window，不支持CommonJS规范，支持ES6Module规范</code>
+          </p>
+        </li>
+        <li>
+          <p>node环境 <br>
+            <code>没有window、支持CommonJS规范、但是不支持ES6Module规范</code>
+          </p>
+        </li>
+        <li>
+          <p>可以基于webpack进行编译 <br>
+            <code>支持window、也支持CommonJS规范、支持ES6Module规范（可以让ES6Module和CommonJS混合调用）...」：基于node环境进行打包处理，打包后的结果交给浏览器端去渲染和运行</code>
+          </p>
+        </li>
+      </ul>
+    </blockquote>
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">// 检测当前运行JS的环境是否支持window「Node环境下运行 g--&gt;global/模块」</span>
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> g = <span class="hljs-keyword">typeof</span> <span class="hljs-built_in">window</span> !== <span class="hljs-string">"undefined"</span> ? <span class="hljs-built_in">window</span> : <span class="hljs-keyword">this</span>;
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> factory = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">factory</span>(<span class="hljs-params">window, noGlobal</span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-comment">// webpack : window--&gt;window   noGlobal--&gt;true</span>
+</div><div class="hljs-line">    <span class="hljs-comment">// 浏览器(webview): window--&gt;window   noGlobal--&gt;undefined</span>
+</div><div class="hljs-line"><span class="hljs-meta">    "use strict"</span>;
+</div><div class="hljs-line">    <span class="hljs-keyword">var</span> version = <span class="hljs-string">"3.6.0"</span>,
+</div><div class="hljs-line">        jQuery = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">selector, context</span>) </span>{
+</div><div class="hljs-line">            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> jQuery.fn.init(selector, context);
+</div><div class="hljs-line">        };
+</div><div class="hljs-line">    <span class="hljs-comment">// ......</span>
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">    <span class="hljs-comment">//=====================冲突处理</span>
+</div><div class="hljs-line">    <span class="hljs-keyword">var</span> _jQuery = <span class="hljs-built_in">window</span>.jQuery,
+</div><div class="hljs-line">        _$ = <span class="hljs-built_in">window</span>.$;
+</div><div class="hljs-line">    jQuery.noConflict = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">deep</span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">window</span>.$ === jQuery) {
+</div><div class="hljs-line">            <span class="hljs-built_in">window</span>.$ = _$;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">        <span class="hljs-keyword">if</span> (deep &amp;&amp; <span class="hljs-built_in">window</span>.jQuery === jQuery) {
+</div><div class="hljs-line">            <span class="hljs-built_in">window</span>.jQuery = _jQuery;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">        <span class="hljs-keyword">return</span> jQuery;
+</div><div class="hljs-line">    };
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">    <span class="hljs-comment">//=====================导出API</span>
+</div><div class="hljs-line">    <span class="hljs-comment">// 让其支持AMD模块规范</span>
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> define === <span class="hljs-string">"function"</span> &amp;&amp; define.amd) {
+</div><div class="hljs-line">        define(<span class="hljs-string">"jquery"</span>, [], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">            <span class="hljs-keyword">return</span> jQuery;
+</div><div class="hljs-line">        });
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    <span class="hljs-comment">// 如果直接在浏览器（webview）中基于 &lt;script src='jquery.js'&gt; 导入的JQ，我们在全局对象中暴露 “jQuery | $”</span>
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> noGlobal === <span class="hljs-string">"undefined"</span>) {
+</div><div class="hljs-line">        <span class="hljs-built_in">window</span>.jQuery = <span class="hljs-built_in">window</span>.$ = jQuery;
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    <span class="hljs-comment">// 在webpack中运行，则基于module.exports=jQuery，让其支持CommonJS规范</span>
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> jQuery;
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">global, factory</span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-comment">// 浏览器(webview &amp; webpack):global--&gt;window  </span>
+</div><div class="hljs-line">    <span class="hljs-comment">// NODE环境:global--&gt;global/模块</span>
+</div><div class="hljs-line"><span class="hljs-meta">    "use strict"</span>;
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> <span class="hljs-built_in">module</span> === <span class="hljs-string">"object"</span> &amp;&amp; <span class="hljs-keyword">typeof</span> <span class="hljs-built_in">module</span>.exports === <span class="hljs-string">"object"</span>){
+</div><div class="hljs-line">        <span class="hljs-comment">// 当前环境支持CommonJS规范：NODE &amp; webpack</span>
+</div><div class="hljs-line">        <span class="hljs-built_in">module</span>.exports = global.document ?
+</div><div class="hljs-line">            <span class="hljs-comment">// global--&gt;window  说明是运行在webpack环境中的</span>
+</div><div class="hljs-line">            factory(global, <span class="hljs-literal">true</span>) :
+</div><div class="hljs-line">            <span class="hljs-comment">// 说明在NODE环境下运行 “JQ不支持NODE环境下运行”</span>
+</div><div class="hljs-line">            <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">w</span>) </span>{
+</div><div class="hljs-line">                <span class="hljs-keyword">if</span> (!w.document) {
+</div><div class="hljs-line">                    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">"jQuery requires a ..."</span>);
+</div><div class="hljs-line">                }
+</div><div class="hljs-line">                <span class="hljs-keyword">return</span> factory(w);
+</div><div class="hljs-line">            };
+</div><div class="hljs-line">    } <span class="hljs-keyword">else</span> {
+</div><div class="hljs-line">        <span class="hljs-comment">// 浏览器(webview)</span>
+</div><div class="hljs-line">        factory(global);
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">})(g, factory);
+</div></code></pre>
+
+    <h4 id="js高阶编程技巧柯理化函数编程思想">JS高阶编程技巧：柯理化函数编程思想</h4>
+
+    <blockquote>
+      <p>柯理化函数思想：预先存储(预处理)，利用闭包的“保存机制”，我们把一些值事先存储起来，供其下级上下文中后期使用</p>
+    </blockquote>
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-keyword">const</span> fn = <span class="hljs-function">(<span class="hljs-params">...params</span>) =&gt;</span> {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> {
+</div><div class="hljs-line">        params = params.concat(args);
+</div><div class="hljs-line">        <span class="hljs-keyword">return</span> params.reduce(<span class="hljs-function">(<span class="hljs-params">result, item</span>) =&gt;</span> result + item);
+</div><div class="hljs-line">    };
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> res = fn(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>)(<span class="hljs-number">3</span>);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(res); <span class="hljs-comment">//=&gt;6  1+2+3 </span>
+</div></code></pre>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">// 基于console.log或者alert输出一个函数，会默认先把函数转化为字符串「Symbol.toPrimitive -&gt; valueOf -&gt; toString」，然后再输出「只不过浏览器为了让开发者知道这是个函数字符串，所以在输出的字符串前面，加了一个“f”」</span>
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> curring = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">curring</span>(<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">let</span> params = [];
+</div><div class="hljs-line">    <span class="hljs-keyword">const</span> add = <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> {
+</div><div class="hljs-line">        params = params.concat(args);
+</div><div class="hljs-line">        <span class="hljs-keyword">return</span> add;
+</div><div class="hljs-line">    };
+</div><div class="hljs-line">    add[<span class="hljs-built_in">Symbol</span>.toPrimitive] = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> params.reduce(<span class="hljs-function">(<span class="hljs-params">result, item</span>) =&gt;</span> result + item);
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> add;
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> add = curring();
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> res = add(<span class="hljs-number">1</span>)(<span class="hljs-number">2</span>)(<span class="hljs-number">3</span>);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(res); <span class="hljs-comment">//-&gt;6</span>
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">add = curring();
+</div><div class="hljs-line">res = add(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>)(<span class="hljs-number">4</span>);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(res); <span class="hljs-comment">//-&gt;10</span>
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">add = curring();
+</div><div class="hljs-line">res = add(<span class="hljs-number">1</span>)(<span class="hljs-number">2</span>)(<span class="hljs-number">3</span>)(<span class="hljs-number">4</span>)(<span class="hljs-number">5</span>);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(res); <span class="hljs-comment">//-&gt;15</span>
+</div></code></pre>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">/* </span>
+</div><div class="hljs-line"><span class="hljs-comment">    在函数式编程当中有一个很重要的概念就是函数组合， 实际上就是把处理数据的函数像管道一样连接起来， 然后让数据穿过管道得到最终的结果。 例如：</span>
+</div><div class="hljs-line"><span class="hljs-comment">    const add1 = (x) =&gt; x + 1;</span>
+</div><div class="hljs-line"><span class="hljs-comment">    const mul3 = (x) =&gt; x * 3;</span>
+</div><div class="hljs-line"><span class="hljs-comment">    const div2 = (x) =&gt; x / 2;</span>
+</div><div class="hljs-line"><span class="hljs-comment">    div2(mul3(add1(add1(0)))); //=&gt;3</span>
+</div><div class="hljs-line"><span class="hljs-comment">​</span>
+</div><div class="hljs-line"><span class="hljs-comment">    而这样的写法可读性明显太差了，我们可以构建一个compose函数，它接受任意多个函数作为参数（这些函数都只接受一个参数），然后compose返回的也是一个函数，达到以下的效果：</span>
+</div><div class="hljs-line"><span class="hljs-comment">    const operate = compose(div2, mul3, add1, add1)</span>
+</div><div class="hljs-line"><span class="hljs-comment">    operate(0) //=&gt;相当于div2(mul3(add1(add1(0)))) </span>
+</div><div class="hljs-line"><span class="hljs-comment">    operate(2) //=&gt;相当于div2(mul3(add1(add1(2))))</span>
+</div><div class="hljs-line"><span class="hljs-comment">​</span>
+</div><div class="hljs-line"><span class="hljs-comment">    简而言之：compose可以把类似于f(g(h(x)))这种写法简化成compose(f, g, h)(x)，请你完成 compose函数的编写 </span>
+</div><div class="hljs-line"><span class="hljs-comment">*/</span>
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> add1 = <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x + <span class="hljs-number">1</span>;
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> mul3 = <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x * <span class="hljs-number">3</span>;
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> div2 = <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x / <span class="hljs-number">2</span>;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> compose = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">compose</span>(<span class="hljs-params">...funcs</span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">let</span> len = funcs.length;
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (len === <span class="hljs-number">0</span>) <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x;
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (len === <span class="hljs-number">1</span>) <span class="hljs-keyword">return</span> funcs[<span class="hljs-number">0</span>];
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">operate</span>(<span class="hljs-params">x</span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-keyword">return</span> funcs.reduceRight(<span class="hljs-function">(<span class="hljs-params">result, func</span>) =&gt;</span> {
+</div><div class="hljs-line">            <span class="hljs-keyword">return</span> func(result);
+</div><div class="hljs-line">        }, x);
+</div><div class="hljs-line">    };
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> operate = compose(div2, mul3, add1, add1);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(operate(<span class="hljs-number">0</span>));
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-comment">// 课后思考：redux中的compose函数编写思想</span>
+</div><div class="hljs-line"><span class="hljs-comment">/* </span>
+</div><div class="hljs-line"><span class="hljs-comment">function compose(...funcs) {</span>
+</div><div class="hljs-line"><span class="hljs-comment">    if (funcs.length === 0) {</span>
+</div><div class="hljs-line"><span class="hljs-comment">        return (arg) =&gt; arg</span>
+</div><div class="hljs-line"><span class="hljs-comment">    }</span>
+</div><div class="hljs-line"><span class="hljs-comment">    if (funcs.length === 1) {</span>
+</div><div class="hljs-line"><span class="hljs-comment">        return funcs[0]</span>
+</div><div class="hljs-line"><span class="hljs-comment">    }</span>
+</div><div class="hljs-line"><span class="hljs-comment">    return funcs.reduce((a, b) =&gt; (...args) =&gt; a(b(...args)))</span>
+</div><div class="hljs-line"><span class="hljs-comment">} </span>
+</div><div class="hljs-line"><span class="hljs-comment">*/</span>
+</div></code></pre>
+
+    <p><strong>reduce</strong></p>
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">// 迭代方法：forEach map reduce reduceRight find filter some every ...</span>
+</div><div class="hljs-line"><span class="hljs-comment">// reduce数组的迭代方法，它支持结果的累积，因为在下一轮迭代可以拿到上一轮迭代的返回结果</span>
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> arr = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>];
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> total = arr.reduce(<span class="hljs-function">(<span class="hljs-params">result, item, index</span>) =&gt;</span> {
+</div><div class="hljs-line">    <span class="hljs-comment">// 数组从第二项开始迭代</span>
+</div><div class="hljs-line">    <span class="hljs-comment">// 第一轮: result数组第一项1  item数组第二项2  index是第二项索引1</span>
+</div><div class="hljs-line">    <span class="hljs-comment">// 第二轮: result存储的是上一轮返回的结果3  item=3  index=2</span>
+</div><div class="hljs-line">    <span class="hljs-comment">// 第三轮: result=6  item=4  index=3</span>
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> result + item;
+</div><div class="hljs-line">});
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> total = arr.reduce(<span class="hljs-function">(<span class="hljs-params">result, item</span>) =&gt;</span> {
+</div><div class="hljs-line">    <span class="hljs-comment">// 传递的第二项是给result设置的初始值  item从数组第一项开始迭代</span>
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> result + item;
+</div><div class="hljs-line">}, <span class="hljs-number">0</span>);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(total); 
+</div></code></pre>
+
+    <h4 id="js高阶编程技巧惰性思想">JS高阶编程技巧：惰性思想</h4>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getCss</span>(<span class="hljs-params">element, attr</span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-comment">// 第一次执行，根据兼容情况，重构getCss函数</span>
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">window</span>.getComputedStyle) {
+</div><div class="hljs-line">        getCss = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">element, attr</span>) </span>{
+</div><div class="hljs-line">            <span class="hljs-keyword">return</span> <span class="hljs-built_in">window</span>.getComputedStyle(element)[attr];
+</div><div class="hljs-line">        };
+</div><div class="hljs-line">    } <span class="hljs-keyword">else</span> {
+</div><div class="hljs-line">        getCss = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">element, attr</span>) </span>{
+</div><div class="hljs-line">            <span class="hljs-keyword">return</span> element.currentStyle[attr];
+</div><div class="hljs-line">        };
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    <span class="hljs-comment">// 第一次把重构的函数执行一次，获取对应的结果</span>
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> getCss(element, attr);
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(getCss(<span class="hljs-built_in">document</span>.body, <span class="hljs-string">'width'</span>));
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(getCss(<span class="hljs-built_in">document</span>.body, <span class="hljs-string">'margin'</span>));
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(getCss(<span class="hljs-built_in">document</span>.body, <span class="hljs-string">'padding'</span>));
+</div></code></pre>
+
+    <h4 id="js高阶编程技巧函数的防抖和节流">JS高阶编程技巧：函数的防抖和节流</h4>
+
+    <blockquote>
+      <p>防抖 debounce：在用户频繁触发某个行为的时候，我们只识别一次即可「开始边界：第一次点击触发 结束边界：等到最后一次触发」 <br>
+        节流 throttle：在频繁操作的时候，我们能降低触发的频率 <br>
+        备注：频繁的频率自己来设定</p>
+    </blockquote>
+
+    <p>防抖的一种简单办法「具体的需求：频繁点击，只有当上一个请求成功，才能发送下一个请求」</p>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-keyword">let</span> isRun = <span class="hljs-literal">false</span>;
+</div><div class="hljs-line">submit.onclick = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (isRun) <span class="hljs-keyword">return</span>;
+</div><div class="hljs-line">    isRun = <span class="hljs-literal">true</span>;
+</div><div class="hljs-line">    queryData(<span class="hljs-function"><span class="hljs-params">result</span> =&gt;</span> {
+</div><div class="hljs-line">        <span class="hljs-built_in">console</span>.log(result);
+</div><div class="hljs-line">        isRun = <span class="hljs-literal">false</span>;
+</div><div class="hljs-line">    });
+</div><div class="hljs-line">};
+</div></code></pre>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">// 清除指定的定时器，并且让timer=null</span>
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> clearTimer = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">clearTimer</span>(<span class="hljs-params">timer</span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (timer) {
+</div><div class="hljs-line">        clearTimeout(timer);
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-comment">/*</span>
+</div><div class="hljs-line"><span class="hljs-comment"> * debounce:函数防抖</span>
+</div><div class="hljs-line"><span class="hljs-comment"> *  @params</span>
+</div><div class="hljs-line"><span class="hljs-comment"> *    func:自己最终要执行的任务</span>
+</div><div class="hljs-line"><span class="hljs-comment"> *    wait:多久操作一次算是频繁触发「默认值:500ms」</span>
+</div><div class="hljs-line"><span class="hljs-comment"> *    immediate:控制触发的边界 「默认值:false结束边界  true开始边界」</span>
+</div><div class="hljs-line"><span class="hljs-comment"> *  @return</span>
+</div><div class="hljs-line"><span class="hljs-comment"> *    operate处理函数，处理函数会在频繁触发的时候，频繁执行；函数内部，控制我们想要操作的func只执行一次；</span>
+</div><div class="hljs-line"><span class="hljs-comment"> */</span>
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> debounce = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">debounce</span>(<span class="hljs-params">func, wait, immediate</span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> func !== <span class="hljs-string">"function"</span>) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">'func must be an function!'</span>);
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> wait === <span class="hljs-string">"boolean"</span>) immediate = wait;
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> wait !== <span class="hljs-string">"number"</span>) wait = <span class="hljs-number">500</span>;
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> immediate !== <span class="hljs-string">"boolean"</span>) immediate = <span class="hljs-literal">false</span>;
+</div><div class="hljs-line">    <span class="hljs-keyword">let</span> timer = <span class="hljs-literal">null</span>;
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">operate</span>(<span class="hljs-params">...params</span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-keyword">let</span> now = !timer &amp;&amp; immediate,
+</div><div class="hljs-line">            result;
+</div><div class="hljs-line">        timer = clearTimer(timer);
+</div><div class="hljs-line">        timer = setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+</div><div class="hljs-line">            timer = clearTimer(timer);
+</div><div class="hljs-line">            <span class="hljs-comment">// 结束边界触发</span>
+</div><div class="hljs-line">            <span class="hljs-keyword">if</span> (!immediate) func.call(<span class="hljs-keyword">this</span>, ...params);
+</div><div class="hljs-line">        }, wait);
+</div><div class="hljs-line">        <span class="hljs-comment">// 开始边界触发</span>
+</div><div class="hljs-line">        <span class="hljs-keyword">if</span> (now) result = func.call(<span class="hljs-keyword">this</span>, ...params);
+</div><div class="hljs-line">        <span class="hljs-keyword">return</span> result;
+</div><div class="hljs-line">    };
+</div><div class="hljs-line">};
+</div></code></pre>
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">/*</span>
+</div><div class="hljs-line"><span class="hljs-comment"> * throttle:函数节流</span>
+</div><div class="hljs-line"><span class="hljs-comment"> *  @params</span>
+</div><div class="hljs-line"><span class="hljs-comment"> *    func:自己最终要执行的任务</span>
+</div><div class="hljs-line"><span class="hljs-comment"> *    wait:触发的频率「默认值:500ms」</span>
+</div><div class="hljs-line"><span class="hljs-comment"> *  @return</span>
+</div><div class="hljs-line"><span class="hljs-comment"> *    operate处理函数</span>
+</div><div class="hljs-line"><span class="hljs-comment"> */</span>
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> throttle = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">throttle</span>(<span class="hljs-params">func, wait</span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> func !== <span class="hljs-string">"function"</span>) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">'func must be an function!'</span>);
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> wait !== <span class="hljs-string">"number"</span>) wait = <span class="hljs-number">500</span>;
+</div><div class="hljs-line">    <span class="hljs-keyword">let</span> timer = <span class="hljs-literal">null</span>,
+</div><div class="hljs-line">        previous = <span class="hljs-number">0</span>;
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">operate</span>(<span class="hljs-params">...params</span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-keyword">let</span> now = +<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(),
+</div><div class="hljs-line">            remaining = wait - (now - previous),
+</div><div class="hljs-line">            result;
+</div><div class="hljs-line">        <span class="hljs-keyword">if</span> (remaining &lt;= <span class="hljs-number">0</span>) {
+</div><div class="hljs-line">            <span class="hljs-comment">// 两次间隔时间超过500ms了,让方法立即执行</span>
+</div><div class="hljs-line">            timer = clearTimer(timer);
+</div><div class="hljs-line">            result = func.call(<span class="hljs-keyword">this</span>, ...params);
+</div><div class="hljs-line">            previous = +<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+</div><div class="hljs-line">        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!timer) {
+</div><div class="hljs-line">            <span class="hljs-comment">// 没设置过定时器等待，则我们设置一个去等待即可</span>
+</div><div class="hljs-line">            timer = setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+</div><div class="hljs-line">                timer = clearTimer(timer);
+</div><div class="hljs-line">                func.call(<span class="hljs-keyword">this</span>, ...params);
+</div><div class="hljs-line">                previous = +<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+</div><div class="hljs-line">            }, remaining);
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">        <span class="hljs-keyword">return</span> result;
+</div><div class="hljs-line">    };
+</div><div class="hljs-line">};
+</div></code></pre>
+
+    <h4 id="吊打面试官之谈谈对闭包的理解">吊打面试官之谈谈对闭包的理解</h4>
+
+
+
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">/*</span>
+</div><div class="hljs-line"><span class="hljs-comment">维度：基础知识、实战应用、高阶应用、源码阅读、插件组件封装「切忌背书式回答，需要润色一个故事」</span>
+</div><div class="hljs-line"><span class="hljs-comment">    @1 STACK、HEAP、EC、VO、AO、GO、SCOPE、SCOPE-CHAIN</span>
+</div><div class="hljs-line"><span class="hljs-comment">    @2 GC浏览器垃圾回收机制: 标记清除 &amp;&amp; 引用计数</span>
+</div><div class="hljs-line"><span class="hljs-comment">    @3 实际应用及优缺点</span>
+</div><div class="hljs-line"><span class="hljs-comment">    @4 进阶专题:单例模式、惰性函数、柯理化函数、compose组合函数...</span>
+</div><div class="hljs-line"><span class="hljs-comment">    @5 再次进阶:手撕源码「jQuery源码、Lodash源码、Redux源码...」</span>
+</div><div class="hljs-line"><span class="hljs-comment">    @6 臻于大成:插件组件封装 </span>
+</div><div class="hljs-line"><span class="hljs-comment">注：中国人儒家思想“温良恭俭让”；不要展开太细了「留一些悬念给面试官接着问即可」“引导面试官”；剧本精神；</span>
+</div><div class="hljs-line"><span class="hljs-comment">*/</span>
+</div></code></pre>
+  </div>
+</body>
+
+</html>

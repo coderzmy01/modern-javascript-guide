@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntersectionObserver</title>
+    <!-- IMPORT CSS -->
+    <link rel="stylesheet" href="css/reset.min.css">
+    <style>
+        html,
+        body {
+            height: 500%;
+            background: -webkit-linear-gradient(top, lightpink, orange);
+        }
+
+        .box {
+            position: absolute;
+            left: 100px;
+            width: 200px;
+            height: 100px;
+        }
+
+        #box1 {
+            top: 1000px;
+            background: red;
+        }
+
+        #box2 {
+            display: block;
+            top: 1600px;
+            background: green;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box" id="box1"></div>
+    <div class="box" id="box2"></div>
+
+    <!-- IMPORT JS -->
+    <script>
+        /*
+        IntersectionObserver：ES6新增的一个内置类 
+          + 不兼容IE浏览器
+          + new IntersectionObserver(callback) 创建它的一个实例：创建一个监听器，用来监听一个或者多个DOM元素和浏览器可视窗口的交叉状态和信息
+            + 当交叉状态「出现在可视窗口中、离开可视窗口」发生改变，都会触发监听器的回调函数callback执行
+            + 在回调函数中可以获取所有监听的DOM和可视窗口的交叉信息
+        */
+        let box1 = document.querySelector('#box1'),
+            box2 = document.querySelector('#box2');
+
+        // 创建监听器
+        let ob = new IntersectionObserver((changes) => {
+            /* 
+            回调函数执行：
+             + 创建监听器、且监听了DOM元素会立即执行一次(连续监听多个DOM只触发一次，但是如果监听是分隔开的，每新监听一个元素都会触发执行一次)
+             + 当监听的元素和可视窗口交叉状态改变，也会触发执行「默认是“一露头”或者“完全出去”，会触发；当然可以基于第二个Options配置项中的threshold来指定规则；」 
+               + threshold: [0]  一露头&完全出去
+               + ...
+               + threshold: [1]  完全出现&出去一点
+             ----
+             changes:是一个数组，记录了每一个监听元素和可视窗口的交叉信息
+               + boundingClientRect：记录当前监听元素的getBoundingClientRect获取的值
+               + isIntersecting：true/false  true代表出现在可视窗口中，false则反之
+               + target：存储当前监听的这个DOM元素对象
+               + ...
+            */
+            console.log(changes);
+        }, { threshold: [1] });
+
+        // 监听某个DOM元素和可视窗口的交叉状态改变；unobserve移除监听；
+        ob.observe(box1);
+        ob.observe(box2);
+    </script>
+</body>
+
+</html>

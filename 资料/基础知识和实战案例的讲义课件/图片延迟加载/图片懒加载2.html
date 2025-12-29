@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片懒加载</title>
+    <!-- IMPORT CSS -->
+    <link rel="stylesheet" href="css/reset.min.css">
+    <style>
+        html,
+        body {
+            height: 500%;
+        }
+
+        .pic-box {
+            box-sizing: border-box;
+            position: absolute;
+            top: 1000px;
+            left: 100px;
+            width: 600px;
+            height: 337px;
+            background: #DDD;
+        }
+
+        .pic-box img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="pic-box">
+        <img src="" data-img="images/girl.webp" alt="">
+    </div>
+
+    <!-- IMPORT JS -->
+    <script>
+        const picBox = document.querySelector('.pic-box'),
+            imgBox = picBox.querySelector('img');
+        // 延迟加载
+        const lazy = () => {
+            let trueImg = imgBox.getAttribute('data-img');
+            imgBox.src = trueImg;
+            imgBox.onload = () => {
+                imgBox.style.opacity = 1;
+            };
+        };
+        // 创建监听器监听pic-box，控制延迟加载：无需再进行复杂运算、也无需考虑函数节流...
+        const ob = new IntersectionObserver(([item]) => {
+            if (item.isIntersecting) {
+                // 完全出现在视口中:延迟加载
+                lazy();
+                // 处理过的需要移除监听
+                ob.unobserve(item.target);
+            }
+        }, { threshold: [1] });
+        ob.observe(picBox);
+    </script>
+</body>
+
+</html>

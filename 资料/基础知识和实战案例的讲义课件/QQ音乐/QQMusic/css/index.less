@@ -1,0 +1,182 @@
+html {
+    // 设定在750设计稿中 1REM=100PX
+    font-size: 100px;
+}
+
+html,
+body {
+    height: 100%;
+    overflow: hidden;
+    background: #F4F4F4;
+    position: relative;
+    z-index: -3;
+}
+
+#app {
+    position: relative;
+    margin: 0 auto;
+    max-width: 750px;
+    height: 100%;
+}
+
+/* 背景 */
+.backImg,
+.backMark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.backImg {
+    background: url('../images/myDream.jpg') no-repeat;
+    background-size: cover;
+    filter: blur(5px);
+    z-index: -2;
+}
+
+.backMark {
+    background: rgba(0, 0, 0, .5);
+    z-index: -1;
+}
+
+/* 头部 */
+@keyframes musicMove {
+    0% {
+        transform: rotate(0);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.headerBox {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .3rem;
+    background: rgba(0, 0, 0, .2);
+
+    .info {
+        position: relative;
+        padding-left: 1.4rem;
+
+        .title,
+        .author {
+            line-height: .6rem;
+            color: #FFF;
+            font-size: .36rem;
+        }
+
+        .author {
+            font-size: .32rem;
+        }
+
+        .logo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+    }
+
+    .musicBtn {
+        width: .6rem;
+        height: .6rem;
+        background: url('../images/music.svg') no-repeat;
+        background-size: 100% 100%;
+
+        &.move {
+            animation: musicMove 1s linear 0s infinite both;
+        }
+    }
+}
+
+/* 歌词 */
+.mainBox {
+    position: relative;
+    margin: .4rem .2rem;
+    overflow: hidden;
+
+    .wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        // 歌词运动控制的就是wrapper的top值改变「设置过渡动画」
+        transition: top .3s linear 0s;
+
+        p {
+            height: .84rem;
+            line-height: .84rem;
+            text-align: center;
+            letter-spacing: .04rem;
+            font-size: .32rem;
+            color: rgba(255, 255, 255, .5);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: color .3s linear 0s;
+
+            &.active {
+                color: #31C27C;
+            }
+        }
+    }
+}
+
+/* 尾部 */
+.footerBox {
+    margin: 0 .2rem;
+    height: 2rem;
+
+    .progress {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: .8rem;
+
+        span {
+            width: .9rem;
+            height: 100%;
+            line-height: .8rem;
+            text-align: center;
+            font-size: .24rem;
+            color: rgba(255, 255, 255, .5);
+        }
+
+        .probg {
+            position: relative;
+            flex-grow: 1;
+            height: .04rem;
+            background: rgba(255, 255, 255, .5);
+
+            .already {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 0%;
+                height: 100%;
+                background: #31C27C;
+            }
+        }
+    }
+
+    .downLoadBtn {
+        display: block;
+        margin: 0 auto;
+        width: 4.4rem;
+        height: .9rem;
+        line-height: .9rem;
+        text-align: center;
+        color: #FFF;
+        font-size: .36rem;
+        border-radius: .45rem;
+        background: url('../images/sprite_play.png') no-repeat #31C27C;
+        background-position: 0.2rem -5.86rem;
+        background-size: .8rem 7rem;
+    }
+}

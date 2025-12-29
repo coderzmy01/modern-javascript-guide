@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>实战开发中常见的“数据清洗”问题</title>
+    <meta charset='utf-8'>
+    <link href='https://cdn.maxiang.io/res-min/themes/marxico.css' rel='stylesheet'>
+    <style>
+        #preview-contents {
+            margin-top: -20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id='preview-contents' class='note-content'>
+
+
+
+        <h4 id="实战开发中常见的数据清洗问题">实战开发中常见的“数据清洗”问题</h4>
+
+        <p><strong>1. 数组扁平化</strong></p>
+
+        <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">/* 常规数组扁平化「多种方案实现」 */</span>
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> arr = [
+</div><div class="hljs-line">    [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">2</span>],
+</div><div class="hljs-line">    [<span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">5</span>],
+</div><div class="hljs-line">    [<span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, [<span class="hljs-number">11</span>, <span class="hljs-number">12</span>, [<span class="hljs-number">12</span>, <span class="hljs-number">13</span>, [<span class="hljs-number">14</span>]]]], <span class="hljs-number">10</span>
+</div><div class="hljs-line">];
+</div><div class="hljs-line"><span class="hljs-comment">//输出结果：[1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 12, 13, 14, 10]</span>
+</div></code></pre>
+
+
+
+        <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">/* 省市县三级数据，现在要编写 getNameByCode，通过输入的code值，获取name值！ */</span>
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> address = [{
+</div><div class="hljs-line">    <span class="hljs-string">"code"</span>: <span class="hljs-string">"11"</span>,
+</div><div class="hljs-line">    <span class="hljs-string">"name"</span>: <span class="hljs-string">"北京市"</span>,
+</div><div class="hljs-line">    <span class="hljs-string">"children"</span>: [{
+</div><div class="hljs-line">        <span class="hljs-string">"code"</span>: <span class="hljs-string">"1101"</span>,
+</div><div class="hljs-line">        <span class="hljs-string">"name"</span>: <span class="hljs-string">"市辖区"</span>,
+</div><div class="hljs-line">        <span class="hljs-string">"children"</span>: [{
+</div><div class="hljs-line">            <span class="hljs-string">"code"</span>: <span class="hljs-string">"110101"</span>,
+</div><div class="hljs-line">            <span class="hljs-string">"name"</span>: <span class="hljs-string">"东城区"</span>
+</div><div class="hljs-line">        }, {
+</div><div class="hljs-line">            <span class="hljs-string">"code"</span>: <span class="hljs-string">"110102"</span>,
+</div><div class="hljs-line">            <span class="hljs-string">"name"</span>: <span class="hljs-string">"西城区"</span>
+</div><div class="hljs-line">        }]
+</div><div class="hljs-line">    }]
+</div><div class="hljs-line">}, {
+</div><div class="hljs-line">    <span class="hljs-string">"code"</span>: <span class="hljs-string">"13"</span>,
+</div><div class="hljs-line">    <span class="hljs-string">"name"</span>: <span class="hljs-string">"河北省"</span>,
+</div><div class="hljs-line">    <span class="hljs-string">"children"</span>: [{
+</div><div class="hljs-line">        <span class="hljs-string">"code"</span>: <span class="hljs-string">"1301"</span>,
+</div><div class="hljs-line">        <span class="hljs-string">"name"</span>: <span class="hljs-string">"石家庄市"</span>,
+</div><div class="hljs-line">        <span class="hljs-string">"children"</span>: [{
+</div><div class="hljs-line">            <span class="hljs-string">"code"</span>: <span class="hljs-string">"130102"</span>,
+</div><div class="hljs-line">            <span class="hljs-string">"name"</span>: <span class="hljs-string">"长安区"</span>
+</div><div class="hljs-line">        }, {
+</div><div class="hljs-line">            <span class="hljs-string">"code"</span>: <span class="hljs-string">"130104"</span>,
+</div><div class="hljs-line">            <span class="hljs-string">"name"</span>: <span class="hljs-string">"桥西区"</span>
+</div><div class="hljs-line">        }]
+</div><div class="hljs-line">    }, {
+</div><div class="hljs-line">        <span class="hljs-string">"code"</span>: <span class="hljs-string">"1302"</span>,
+</div><div class="hljs-line">        <span class="hljs-string">"name"</span>: <span class="hljs-string">"唐山市"</span>,
+</div><div class="hljs-line">        <span class="hljs-string">"children"</span>: [{
+</div><div class="hljs-line">            <span class="hljs-string">"code"</span>: <span class="hljs-string">"130202"</span>,
+</div><div class="hljs-line">            <span class="hljs-string">"name"</span>: <span class="hljs-string">"路南区"</span>
+</div><div class="hljs-line">        }, {
+</div><div class="hljs-line">            <span class="hljs-string">"code"</span>: <span class="hljs-string">"130203"</span>,
+</div><div class="hljs-line">            <span class="hljs-string">"name"</span>: <span class="hljs-string">"路北区"</span>
+</div><div class="hljs-line">        }]
+</div><div class="hljs-line">    }]
+</div><div class="hljs-line">}];
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> getNameByCode = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getNameByCode</span>(<span class="hljs-params">address, code</span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-comment">// 编写你的代码</span>
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(getNameByCode(address, <span class="hljs-string">'130102'</span>)); <span class="hljs-comment">//"长安区"</span>
+</div></code></pre>
+
+        <p><strong>2. 对象扁平化</strong></p>
+
+
+
+        <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">/* 把对象处理为下述扁平化的结构 */</span>
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> obj = {
+</div><div class="hljs-line">    <span class="hljs-attr">a</span>: {
+</div><div class="hljs-line">        <span class="hljs-attr">b</span>: <span class="hljs-number">1</span>,
+</div><div class="hljs-line">        <span class="hljs-attr">c</span>: <span class="hljs-number">2</span>,
+</div><div class="hljs-line">        <span class="hljs-attr">d</span>: { <span class="hljs-attr">e</span>: <span class="hljs-number">3</span>, <span class="hljs-number">2</span>: <span class="hljs-number">200</span> },
+</div><div class="hljs-line">    },
+</div><div class="hljs-line">    <span class="hljs-attr">b</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, { <span class="hljs-attr">a</span>: <span class="hljs-number">3</span>, <span class="hljs-attr">b</span>: <span class="hljs-number">4</span> }],
+</div><div class="hljs-line">    <span class="hljs-attr">c</span>: <span class="hljs-number">1</span>,
+</div><div class="hljs-line">    <span class="hljs-number">1</span>: <span class="hljs-number">100</span>,
+</div><div class="hljs-line">    <span class="hljs-attr">x</span>: {}
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-comment">/* </span>
+</div><div class="hljs-line"><span class="hljs-comment">// 输出结果:</span>
+</div><div class="hljs-line"><span class="hljs-comment">let objFlatten = {</span>
+</div><div class="hljs-line"><span class="hljs-comment">    1: 100,</span>
+</div><div class="hljs-line"><span class="hljs-comment">    'a.b': 1,</span>
+</div><div class="hljs-line"><span class="hljs-comment">    'a.c': 2,</span>
+</div><div class="hljs-line"><span class="hljs-comment">    'a.d.e': 3,</span>
+</div><div class="hljs-line"><span class="hljs-comment">    'a.d[2]': 200,</span>
+</div><div class="hljs-line"><span class="hljs-comment">    'b[0]': 1,</span>
+</div><div class="hljs-line"><span class="hljs-comment">    'b[1]': 2,</span>
+</div><div class="hljs-line"><span class="hljs-comment">    'b[2].a': 3,</span>
+</div><div class="hljs-line"><span class="hljs-comment">    'b[2].b': 4,</span>
+</div><div class="hljs-line"><span class="hljs-comment">    'c': 1,</span>
+</div><div class="hljs-line"><span class="hljs-comment">    x: {}</span>
+</div><div class="hljs-line"><span class="hljs-comment">}; </span>
+</div><div class="hljs-line"><span class="hljs-comment">*/</span>
+</div></code></pre>
+
+
+
+        <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">/* 编写getValue实现以下需求 */</span>
+</div><div class="hljs-line"><span class="hljs-keyword">let</span> obj = {
+</div><div class="hljs-line">    <span class="hljs-attr">a</span>: {
+</div><div class="hljs-line">        <span class="hljs-attr">b</span>: {
+</div><div class="hljs-line">            <span class="hljs-attr">c</span>: {
+</div><div class="hljs-line">                <span class="hljs-attr">d</span>: <span class="hljs-number">1</span>
+</div><div class="hljs-line">            }
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-keyword">const</span> getValue = <span class="hljs-function">(<span class="hljs-params">originObj, keyPath</span>) =&gt;</span> {
+</div><div class="hljs-line">    <span class="hljs-comment">// 编写你的代码</span>
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(getValue(obj, <span class="hljs-string">'a.b.c.d'</span>)); <span class="hljs-comment">//1</span>
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(getValue(obj, <span class="hljs-string">'a.b'</span>)); <span class="hljs-comment">//{c:{d:1}}</span>
+</div></code></pre>
+
+        <p><strong>3. 一维数组转树结构</strong></p>
+
+
+
+        <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">/* </span>
+</div><div class="hljs-line"><span class="hljs-comment">请使用javascript写一个自定义函数将下列数组转化为树形结构</span>
+</div><div class="hljs-line"><span class="hljs-comment">let data = [</span>
+</div><div class="hljs-line"><span class="hljs-comment">    { id: 0, parentId: null, text: '北京市' },</span>
+</div><div class="hljs-line"><span class="hljs-comment">    { id: 1, parentId: 0, text: '昌平区' },</span>
+</div><div class="hljs-line"><span class="hljs-comment">    { id: 2, parentId: 0, text: '海淀区' },</span>
+</div><div class="hljs-line"><span class="hljs-comment">    { id: 3, parentId: null, text: '河北省' },</span>
+</div><div class="hljs-line"><span class="hljs-comment">    { id: 4, parentId: null, text: '山西省' },</span>
+</div><div class="hljs-line"><span class="hljs-comment">    { id: 5, parentId: 3, text: '承德市' },</span>
+</div><div class="hljs-line"><span class="hljs-comment">    { id: 6, parentId: 3, text: '石家庄市' }</span>
+</div><div class="hljs-line"><span class="hljs-comment">];</span>
+</div><div class="hljs-line"><span class="hljs-comment">最终结果：</span>
+</div><div class="hljs-line"><span class="hljs-comment">[</span>
+</div><div class="hljs-line"><span class="hljs-comment">    {</span>
+</div><div class="hljs-line"><span class="hljs-comment">        id: 0, parentId: null, text: '北京市',</span>
+</div><div class="hljs-line"><span class="hljs-comment">        childen: [</span>
+</div><div class="hljs-line"><span class="hljs-comment">            { id: 1, parentId: 0, text: '昌平区' },</span>
+</div><div class="hljs-line"><span class="hljs-comment">            { id: 2, parentId: 0, text: '海淀区' }</span>
+</div><div class="hljs-line"><span class="hljs-comment">        ]</span>
+</div><div class="hljs-line"><span class="hljs-comment">    },</span>
+</div><div class="hljs-line"><span class="hljs-comment">    {</span>
+</div><div class="hljs-line"><span class="hljs-comment">        id: 3, parentId: null, text: '河北省',</span>
+</div><div class="hljs-line"><span class="hljs-comment">        childen: [</span>
+</div><div class="hljs-line"><span class="hljs-comment">            { id: 5, parentId: 3, text: '承德市' },</span>
+</div><div class="hljs-line"><span class="hljs-comment">            { id: 6, parentId: 3, text: '石家庄市' }</span>
+</div><div class="hljs-line"><span class="hljs-comment">        ]</span>
+</div><div class="hljs-line"><span class="hljs-comment">    },</span>
+</div><div class="hljs-line"><span class="hljs-comment">    { id: 4, parentId: null, text: '山西省' }</span>
+</div><div class="hljs-line"><span class="hljs-comment">];</span>
+</div><div class="hljs-line"><span class="hljs-comment">*/</span>
+</div></code></pre>
+
+        <p><strong>4. 数据组合问题</strong></p>
+
+
+
+        <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">/* </span>
+</div><div class="hljs-line"><span class="hljs-comment">const obj = {</span>
+</div><div class="hljs-line"><span class="hljs-comment">    data: [</span>
+</div><div class="hljs-line"><span class="hljs-comment">        ['xiaoming', 'male', '18', 'beijing', '2020-01-02'],</span>
+</div><div class="hljs-line"><span class="hljs-comment">        ['xiaofang', 'female', '18', 'shanghai', '2020-03-02']</span>
+</div><div class="hljs-line"><span class="hljs-comment">    ],</span>
+</div><div class="hljs-line"><span class="hljs-comment">    columns: [</span>
+</div><div class="hljs-line"><span class="hljs-comment">        { name: 'name', note: '' },</span>
+</div><div class="hljs-line"><span class="hljs-comment">        { name: 'gender', note: '' },</span>
+</div><div class="hljs-line"><span class="hljs-comment">        { name: 'age', note: '' },</span>
+</div><div class="hljs-line"><span class="hljs-comment">        { name: 'address', note: '' },</span>
+</div><div class="hljs-line"><span class="hljs-comment">        { name: 'registerTime', note: '' },</span>
+</div><div class="hljs-line"><span class="hljs-comment">    ]</span>
+</div><div class="hljs-line"><span class="hljs-comment">};</span>
+</div><div class="hljs-line"><span class="hljs-comment">输出下面结果 </span>
+</div><div class="hljs-line"><span class="hljs-comment">[</span>
+</div><div class="hljs-line"><span class="hljs-comment">    { name: 'xiaoming', 'gender': 'male', age: '18', address: 'beijing', registerTime: '2020-01-02' },</span>
+</div><div class="hljs-line"><span class="hljs-comment">    { name: 'xiaofang', 'gender': 'female', age: '18', address: 'shanghai', registerTime: '2020-03-02' }</span>
+</div><div class="hljs-line"><span class="hljs-comment">]</span>
+</div><div class="hljs-line"><span class="hljs-comment">*/</span>
+</div></code></pre>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>珠峰培训就业班「挑战15~20万年薪」</title>
+    <!-- IMPORT CSS -->
+    <link rel="stylesheet" href="css/reset.min.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+
+<body>
+    <header class="headerBox">
+        <div class="b3-container" id="container1">
+            <!-- 轮播图 -->
+            <div class="b3-wrapper">
+                <!-- <div class="b3-slide active">
+                    <img src="images/01.jpg" alt="">
+                    <div class="b3-mark"></div>
+                    <div class="b3-desc">
+                        <p>蒙奇·D·路飞</p>
+                        <p>身份:草帽海贼团船长</p>
+                        <p>梦想:找到ONE PIECE，并成为海贼王</p>
+                    </div>
+                </div> -->
+            </div>
+            <!-- 导航按钮 -->
+            <div class="b3-navigation prev"></div>
+            <div class="b3-navigation next"></div>
+        </div>
+    </header>
+
+    <header class="headerBox">
+        <div class="b3-container" id="container2">
+            <div class="b3-wrapper"></div>
+        </div>
+    </header>
+
+    <!-- IMPORT JS -->
+    <script src="js/axios.min.js"></script>
+    <script src="js/banner3D.plugin.js"></script>
+    <script>
+        axios.get(`./data.json?_=${+new Date()}`)
+            .then(response => {
+                return response.data;
+            }).then(value => {
+                banner3D('#container1', value, {
+                    interval: 1000,
+                    speed: 200
+                });
+
+                banner3D('#container2', value, {
+                    navigation: false,
+                    // auto: false,
+                    interval: 1000,
+                    slideClick: (item) => {
+                        // console.log(`当前点击的SLIDE的ID：${item.id}`);
+                    },
+                    onTranstionEnd: (step) => {
+                        // console.log(`当前展示的SLIDE索引：${step}`);
+                    },
+                    template: item => {
+                        return `<img src="${item.pic}" alt="">
+                        <div class="b3-mark"></div>`;
+                    }
+                });
+            });
+    </script>
+</body>
+
+</html>

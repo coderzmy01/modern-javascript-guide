@@ -33,18 +33,36 @@
 // console.log(foo); // ƒ foo() { return 'first'; }
 // 注意：同步的是第一个函数声明时的值！
 
-console.log(foo); // undefined
-if (true) {
-  console.log(foo); // undefined（）
-  if (true) {
-    console.log(foo); // ƒ foo() {}（继承外层块级）
-    function foo() {
-      return 'inner';
-    }
-    // 同步给上一级块级作用域，不是全局！
-    foo = 'modified';
-  }
-  console.log(foo); // f foo(){}
-}
+// console.log(foo); // undefined
+// if (true) {
+//   console.log(foo); // undefined（）
+//   if (true) {
+//     console.log(foo); // ƒ foo() {}（继承外层块级）
+//     function foo() {
+//       return 'inner';
+//     }
+//     // 同步给上一级块级作用域，不是全局！
+//     foo = 'modified';
+//   }
+//   console.log(foo); // f foo(){}
+// }
 
-console.log(foo); // f foo(){}
+// console.log(foo); // f foo(){}
+
+let obj = {
+  x: 1,
+  y: [10, 20],
+};
+let obj2 = obj;
+let obj3 = {
+  ...obj2,
+};
+obj2.x = 100;
+obj2.y[1] = 30;
+obj3.x = 200;
+obj3.y[2] = 40;
+obj = obj3.y = {
+  x: 0,
+  y: [1, 2],
+};
+console.log(obj, obj2, obj3);

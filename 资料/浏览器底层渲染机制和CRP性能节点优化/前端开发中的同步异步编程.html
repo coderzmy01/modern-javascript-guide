@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>前端开发中的同步异步编程</title>
+  <meta charset='utf-8'>
+  <link href='https://cdn.maxiang.io/res-min/themes/marxico.css' rel='stylesheet'>
+  <style>
+    .note-content {
+      font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", STHeiti, "Microsoft YaHei", "WenQuanYi Micro Hei", SimSun, Song, sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+  <div id='preview-contents' class='note-content'>
+
+    <h4 id="前端开发中的同步异步编程">前端开发中的同步异步编程</h4>
+
+    <blockquote>
+      <p>知识点</p>
+
+      <ul>
+        <li>
+          <p>进程与线程 &amp; 浏览器中常用的线程</p>
+
+          <ul>
+            <li>
+              <p>GUI渲染线程</p>
+            </li>
+            <li>
+              <p>JS引擎线程</p>
+            </li>
+            <li>
+              <p>事件触发线程</p>
+            </li>
+            <li>
+              <p>定时触发器线程</p>
+            </li>
+            <li>
+              <p>异步HTTP请求线程</p>
+            </li>
+            <li>
+              <p>WebWorker</p>
+            </li>
+            <li>
+              <p>… </p>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <p>JS是单线程异步编程</p>
+
+          <ul>
+            <li>
+              <p>EventLoop</p>
+            </li>
+            <li>
+              <p>EventQueue</p>
+            </li>
+            <li>
+              <p>WebAPIS</p>
+            </li>
+            <li>
+              <p>宏任务 macrotask [ˈmækroʊ]</p>
+            </li>
+            <li>
+              <p>微任务 microtask [ˈmaɪkroʊ]</p>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </blockquote>
+
+    <table>
+      <tbody>
+        <tr style="font-weight:bold">
+          <td align="left">宏任务 macrotask</td>
+          <td align="right">微任务 microtask</td>
+        </tr>
+        <tr>
+          <td align="left">setTimeout/setInterval</td>
+          <td align="right">requestAnimationFrame「有争议」</td>
+        </tr>
+        <tr>
+          <td align="left">事件绑定/队列</td>
+          <td align="right">Promise.then/catch/finally</td>
+        </tr>
+        <tr>
+          <td align="left">XMLHttpRequest/Fetch</td>
+          <td align="right">async/await</td>
+        </tr>
+        <tr>
+          <td align="left">setImmediate「Node」</td>
+          <td align="right">queueMicrotask</td>
+        </tr>
+        <tr>
+          <td align="left">MessageChannel</td>
+          <td align="right">process.nextTick「Node」</td>
+        </tr>
+        <tr>
+          <td align="left"></td>
+          <td align="right">MutationObserver</td>
+        </tr>
+        <tr>
+          <td align="left"></td>
+          <td align="right">IntersectionObserver</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4 id="随堂练习题-面试题">随堂练习题 &amp; 面试题</h4>
+    <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line">setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-number">1</span>);
+</div><div class="hljs-line">}, <span class="hljs-number">20</span>);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(<span class="hljs-number">2</span>);
+</div><div class="hljs-line">setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-number">3</span>);
+</div><div class="hljs-line">}, <span class="hljs-number">10</span>);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(<span class="hljs-number">4</span>);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.time(<span class="hljs-string">'AA'</span>);
+</div><div class="hljs-line"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">90000000</span>; i++) {
+</div><div class="hljs-line">    <span class="hljs-comment">// do soming</span>
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.timeEnd(<span class="hljs-string">'AA'</span>); <span class="hljs-comment">//=&gt;AA: 79ms 左右</span>
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(<span class="hljs-number">5</span>);
+</div><div class="hljs-line">setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-number">6</span>);
+</div><div class="hljs-line">}, <span class="hljs-number">8</span>);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(<span class="hljs-number">7</span>);
+</div><div class="hljs-line">setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-number">8</span>);
+</div><div class="hljs-line">}, <span class="hljs-number">15</span>);
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(<span class="hljs-number">9</span>);
+</div></code></pre>
+  </div>
+</body>
+
+</html>

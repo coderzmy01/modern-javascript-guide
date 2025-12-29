@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>珠峰培训零基础高薪就业班</title>
+</head>
+
+<body>
+
+    <!-- IMPORT JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="node_modules/axios/dist/axios.min.js"></script>
+    <script src="js/jsonp.js"></script>
+    <script>
+        /* jsonp('http://127.0.0.1:1001/user/list')
+            .then(value => {
+                console.log('请求成功：', value);
+            }); */
+
+        jsonp('https://www.baidu.com/sugrec', {
+            params: {
+                prod: 'pc',
+                wd: '珠峰培训'
+            },
+            jsonpName: 'cb'
+        }).then(value => {
+            console.log('请求成功：', value);
+        });
+    </script>
+
+    <!-- JSONP -->
+    <!-- <script>
+        const func = function func(data) {
+            console.log('请求成功：', data);
+        };
+    </script>
+    <script src="http://127.0.0.1:1001/user/list?callback=func"></script> -->
+</body>
+
+</html>

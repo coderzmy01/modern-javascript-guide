@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片懒加载</title>
+    <!-- IMPORT CSS -->
+    <link rel="stylesheet" href="css/reset.min.css">
+    <style>
+        /*
+         图片懒加载的思路：
+           + 最开始加载页面的时候，IMG的SRC不赋值(这样就不会加载真实图片，把真实图片的地址赋值给IMG的自定义属性，方便后期想要加载真实图片时候获取) 
+           + 如果SRC不赋值或者加载图片是错误的，会显示“碎图”，这样样式不美观，所以：我们最开始让IMG是隐藏的「可以设置display、也可以设置透明度为0(透明度改变可以设置过渡效果)」
+           + 给图片所在的盒子设置背景占位图(或者背景颜色)，在真实图片没有加载之前，用其占位「盒子宽高事先设置好的」
+           ------
+           啥时候加载？
+           + 当页面第一次渲染完(其它资源加载完成，例如：window.onload)
+           + 把出现在当前可视窗口内的图片进行加载
+           ------
+           如何加载？
+           + 获取图片的自定义属性值，拿到真实图片地址
+           + 给图片的SRC赋值真实地址：如果图片可以正常加载成功，则让IMG显示
+         */
+        html,
+        body {
+            height: 500%;
+        }
+
+        .pic-box {
+            box-sizing: border-box;
+            position: absolute;
+            top: 1000px;
+            left: 100px;
+            width: 600px;
+            height: 337px;
+            background: #DDD;
+        }
+
+        .pic-box img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="pic-box">
+        <img src="" data-img="images/girl.webp" alt="">
+    </div>
+
+    <!-- IMPORT JS -->
+    <script src="js/utils.js"></script>
+    <script>
+        const picBox = document.querySelector('.pic-box'),
+            imgBox = picBox.querySelector('img'),
+            HTML = document.documentElement;
+        // 图片懒加载
+        const lazy = function lazy() {
+            let trueImg = imgBox.getAttribute('data-img');
+            imgBox.src = trueImg;
+            imgBox.onload = () => {
+                imgBox.style.opacity = 1;
+            };
+            // 设置自定义属性:当前图片已经处理过延迟加载了
+            picBox.isLoad = true;
+        };
+
+        // 计算何时加载{完全出现}
+        const computed = function computed() {
+            // 如果之前已经处理过，则无需再次处理了
+            if (picBox.isLoad) return;
+            let C = HTML.clientHeight,
+                { top: B, bottom: A } = picBox.getBoundingClientRect();
+            if (A <= C && B >= 0) {
+                lazy();
+            }
+        };
+
+        // 第一次其它资源加载完计算一次 & 页面滚动中随时计算
+        //   + scroll事件会在浏览器滚动条滚动中进行触发，并且按照浏览器最快反应时间(一般5~7ms)的频率进行触发！！例如：我们滚动100ms，按照5ms触发一次，一共触发20次！！ “触发频率太快了，造成了没必要的计算和性能消耗”
+        //   + 此时我们需要“降低”触发频率「我们不是降低浏览器的触发频率，而是把computed函数执行的频率降下来」，我们此操作称之为“函数节流”！！
+        window.onload = computed;
+        window.onscroll = utils.throttle(computed, 100);
+    </script>
+
+    <script>
+        /*
+        const picBox = document.querySelector('.pic-box'),
+            imgBox = picBox.querySelector('img');
+        // 图片懒加载
+        const lazy = function lazy() {
+            /!* 
+            // 如果页面中的IMG没有设置隐藏，此时的操作可以确保图片地址是正确的情况下，再给页面中的IMG赋值，防止因图片加载失败，出现“裂图”的情况！！
+            let trueImg = imgBox.getAttribute('data-img');
+            let img = new Image(); //document.createElement('img')
+            img.src = trueImg;
+            img.onload = () => {
+                imgBox.src = trueImg;
+                imgBox.style.opacity = 1;
+            }; 
+            *!/
+
+            let trueImg = imgBox.getAttribute('data-img');
+            imgBox.src = trueImg;
+            imgBox.onload = () => {
+                // 真实图片加载成功
+                imgBox.style.opacity = 1;
+            }; 
+        };
+        // 当页面其它资源都加载完成后，执行延迟加载
+        window.onload = lazy;
+        // setTimeout(lazy, 1000); 
+        */
+    </script>
+</body>
+
+</html>

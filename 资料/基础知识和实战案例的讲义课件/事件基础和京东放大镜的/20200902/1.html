@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>珠峰在线预科班</title>
+
+    <!-- IMPORT CSS -->
+    <link rel="stylesheet" href="css/reset.min.css">
+    <style>
+        .box {
+            box-sizing: border-box;
+            margin: 20px auto;
+            padding-top: 20px;
+            width: 300px;
+            height: 300px;
+            background: lightblue;
+        }
+
+        .outer {
+            box-sizing: border-box;
+            margin: 0 auto;
+            padding-top: 20px;
+            width: 200px;
+            height: 200px;
+            background: lightcoral;
+        }
+
+        .inner {
+            margin: 0 auto;
+            width: 100px;
+            height: 100px;
+            background: lightgreen;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <div class="outer">
+            <div class="inner">
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- IMPORT JS -->
+    <script>
+        // 因为点击事件行为存在冒泡传播机制，所以不论点击INNER/OUTER/BOX，最后都会传播到BODY上，触发BODY的CLICK事件行为，把为其绑定的方法执行
+        // 在方法执行接受到的事件对象中，有一个target/srcElement属性（事件源），可以知道当前操作的是谁，我们此时方法中完全可以根据事件源的不同，做不同的处理
+        // 上述机制就是 “事件委托/事件代理”：利用事件的冒泡传播机制(核心/前提)，我们可以把一个“容器A”中所有后代元素的某个“事件行为E”触发要做的操作，委托给A的事件行为E，这样后期只要触发A中任何元素的E行为，都会传播到A上，把给A绑定的方法执行；在方法执行的时候，基于事件源不同做不同的处理；
+        // + 性能高 60%左右
+        // + 可以操作动态绑定的元素
+        // + 某些需求必须基于它完成
+        // + ...
+        /* document.body.onclick = function (ev) {
+            let target = ev.target,
+                targetClass = target.className;
+            if (targetClass === "inner") {
+                console.log('INNER');
+                return;
+            }
+            if (targetClass === "outer") {
+                console.log('OUTER');
+                return;
+            }
+            if (targetClass === "box") {
+                console.log('BOX');
+                return;
+            }
+        }; */
+
+        /* let box = document.querySelector('.box'),
+            outer = document.querySelector('.outer'),
+            inner = document.querySelector('.inner');
+
+        inner.onclick = function (ev) {
+            console.log('INNER');
+            ev.stopPropagation();
+        };
+
+        outer.onclick = function (ev) {
+            console.log('OUTER');
+            ev.stopPropagation();
+        };
+
+        box.onclick = function (ev) {
+            console.log('BOX');
+            ev.stopPropagation();
+        }; */
+
+        /*
+         * DOM0事件绑定中给元素事件行为绑定的方法，都是在目标阶段/冒泡阶段触发的 
+         * 
+         * DOM2事件绑定可以控制在绑定的方法在捕获阶段触发(虽然没有什么实际的意义)
+         *   + 元素.addEventListener(事件,方法,false/true)
+         *   + 最后一个参数默认是false：控制方法是在冒泡阶段触发执行的，如设置为true可以控制在捕获阶段触发执行
+         */
+        /* inner.onclick = function (ev) {
+            console.log('INNER==>', ev);
+            ev.stopPropagation();
+        };
+
+        outer.onclick = function (ev) {
+            console.log('OUTER==>', ev);
+        };
+
+        /!* box.addEventListener('click', function (ev) {
+            console.log('BOX==>', ev);
+        }, true); *!/
+        box.onclick = function (ev) {
+            console.log('BOX==>', ev);
+        };
+
+        document.body.onclick = function (ev) {
+            console.log('BODY==>', ev);
+        }; */
+    </script>
+</body>
+
+</html>

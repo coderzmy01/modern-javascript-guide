@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>珠峰在线预科班</title>
+
+    <!-- IMPORT CSS -->
+    <link rel="stylesheet" href="css/reset.min.css">
+    <style>
+        .outer {
+            box-sizing: border-box;
+            margin: 50px auto;
+            padding-top: 20px;
+            width: 200px;
+            height: 200px;
+            background: lightcoral;
+        }
+
+        .inner {
+            margin: 0 auto;
+            width: 100px;
+            height: 100px;
+            background: lightgreen;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="outer">
+        <div class="inner">
+
+        </div>
+    </div>
+
+
+    <!-- IMPORT JS -->
+    <script>
+        let outer = document.querySelector('.outer'),
+            inner = document.querySelector('.inner');
+
+        outer.onmouseenter = function () {
+            console.log('OUTER ENTER');
+        };
+        outer.onmouseleave = function () {
+            console.log('OUTER LEAVE');
+        };
+        inner.onmouseenter = function () {
+            console.log('INNER ENTER');
+        };
+        inner.onmouseleave = function () {
+            console.log('INNER LEAVE');
+        };
+
+
+        /* outer.onmouseover = function () {
+            console.log('OUTER OVER');
+        };
+        outer.onmouseout = function () {
+            console.log('OUTER OUT');
+        };
+        inner.onmouseover = function () {
+            console.log('INNER OVER');
+        };
+        inner.onmouseout = function () {
+            console.log('INNER OUT');
+        }; */
+    </script>
+</body>
+
+</html>
